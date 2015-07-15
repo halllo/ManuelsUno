@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>no sea takimata</title>
+
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="http://getbootstrap.com/examples/jumbotron/jumbotron.css">
+
+	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+	  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+	  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+	<![endif]-->
+</head>
+<body>
+
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#">no sea takimata</a>
+			</div>
+		</div>
+	</nav>
+
+	<div class="jumbotron">
+		<div class="container">
+			<h1>no sea takimata</h1>
+			<p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
+
+			<p>&copy; Manuel Naujoks 2015</p>
+
+		</div>
+	</div>
+
+	<div class="container">
+		<div id="loginPanel">
+			<p>username</p>
+			<input type="text" id="displayname" />
+			<p>groupname</p>
+			<input type="text" id="groupname" />
+			<p></p>
+			<input type="button" id="login" value="login" />
+		</div>
+		<div id="sendPanel" hidden>
+			<input type="text" id="message" />
+			<input type="button" id="sendmessage" value="send" />
+			<ul id="discussion"></ul>
+		</div>
+	</div> <!-- /container -->
+
+	<script src="Scripts/jquery-1.10.2.js"></script>
+	<script src="Scripts/jquery.signalR-2.1.2.js"></script>
+	<script src="signalr/hubs"></script>
+	<script type="text/javascript">
+		$(function () {
+			var chat = $.connection.myHub;
+			chat.client.addMessage = function (name, message) {
+				var encodedName = $('<div />').text(name).html();
+				var encodedMsg = $('<div />').text(message).html();
+				$('#discussion').append('<li><strong>' + encodedName
+					+ '</strong>:&nbsp;&nbsp;' + encodedMsg + '</li>');
+			};
+
+			$.connection.hub.start().done(function () {
+				$('#displayname').focus();
+				$("#login").click(function () {
+					chat.server.joinRoom($('#displayname').val(), $('#groupname').val());
+
+					$("#loginPanel").hide();
+					$("#sendPanel").show();
+
+					$("#message").keypress(function (event) {
+						if (event.keyCode == 13) {
+							$("#sendmessage").click();
+						}
+					});
+					$('#message').focus();
+
+					$('#sendmessage').click(function () {
+						chat.server.send($('#displayname').val(), $('#groupname').val(), $('#message').val());
+						$('#message').val('').focus();
+					});
+				});
+			});
+		});
+	</script>
+</body>
+</html>
