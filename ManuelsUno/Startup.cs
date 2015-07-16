@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNet.SignalR;
-using Microsoft.Owin;
-using Microsoft.Owin.Cors;
-using Owin;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
+using Microsoft.AspNet.SignalR;
+using Microsoft.Owin;
+using Microsoft.Owin.Cors;
+using Owin;
 
 [assembly: OwinStartup(typeof(ManuelsUno.Startup))]
 
@@ -26,8 +26,8 @@ namespace ManuelsUno
 
 			config.Routes.MapHttpRoute(
 				"DefaultApi",
-				"api/{controller}/{id}",
-				new { id = RouteParameter.Optional });
+				"api/{controller}/{gameId}",
+				new { gameId = RouteParameter.Optional });
 
 			return config;
 		}
@@ -61,25 +61,47 @@ namespace ManuelsUno
 
 
 
-	public class ValuesController : ApiController
+	public class GamesController : ApiController
 	{
-		// GET /api/values
+		private static Dictionary<string, Dictionary<string, int>> games = new Dictionary<string, Dictionary<string, int>>();
+
+		// GET /api/games
 		public async Task<IEnumerable<string>> Get()
 		{
-			return await Task.FromResult(Enumerable.Range(1, 10).Select(i => "value " + i));
+			var result = games.Keys;
+
+			return await Task.FromResult(result);
 		}
 
-		// GET /api/values/5
-		public async Task<string> Get(int id)
+		// GET /api/games/gameId
+		public async Task<IEnumerable<string>> Get(string gameId)
 		{
-			return await Task.FromResult("value request for " + id);
+			var result = games[gameId].Select(kvp => kvp.Key + " has " + kvp.Value + " points");
+
+			return await Task.FromResult(result);
 		}
 
-		// POST /api/values
-		public void Post(string value)
+		// POST /api/games/gameId
+		public IHttpActionResult Post(string gameId, [FromBody]CountEvent countEvent)
 		{
+			if (!games.ContainsKey(gameId))
+			{
+				games.Add(gameId, new Dictionary<string, int>());
+			}
+			if (!games[gameId].ContainsKey(countEvent.player))
+			{
+				games[gameId].Add(countEvent.player, 0);
+			}
+			games[gameId][countEvent.player] += countEvent.count;
 
+			return Ok();
 		}
+	}
+
+	public class CountEvent
+	{
+		public string player { get; set; }
+		public int count { get; set; }
 	}
 
 
