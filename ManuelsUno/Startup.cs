@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -11,6 +12,7 @@ using Owin;
 
 namespace ManuelsUno
 {
+
 	public class Startup
 	{
 		public void Configuration(IAppBuilder app)
@@ -63,39 +65,73 @@ namespace ManuelsUno
 
 	public class GamesController : ApiController
 	{
-		private static Dictionary<string, Dictionary<string, int>> games = new Dictionary<string, Dictionary<string, int>>();
-
 		// GET /api/games
-		public async Task<IEnumerable<string>> Get()
+		public async Task<IEnumerable<Game>> Get()
 		{
-			var result = games.Keys;
+			using (var context = new GameCountContext())
+			{
+				var events = await context.Events
+					.GroupBy(e => e.Game)
+					.Select(eg => new Game
+					{
+						Id = eg.Key,
+						Players = eg.Select(e => e.Player).Distinct().Count()
+					})
+					.ToListAsync();
 
-			return await Task.FromResult(result);
+				return events;
+			}
 		}
 
 		// GET /api/games/gameId
-		public async Task<IEnumerable<string>> Get(string gameId)
+		public async Task<IEnumerable<PlayerScore>> Get(string gameId)
 		{
-			var result = games[gameId].Select(kvp => kvp.Key + " has " + kvp.Value + " points");
+			using (var context = new GameCountContext())
+			{
+				var events = await context.Events
+					.Where(e => e.Game == gameId)
+					.GroupBy(e => e.Player)
+					.Select(eg => new PlayerScore
+					{
+						Player = eg.Key,
+						Score = eg.Sum(e => e.Count)
+					})
+					.OrderByDescending(s => s.Score)
+					.ToListAsync();
 
-			return await Task.FromResult(result);
+				return events;
+			}
 		}
 
 		// POST /api/games/gameId
-		public IHttpActionResult Post(string gameId, [FromBody]CountEvent countEvent)
+		public async Task<IHttpActionResult> Post(string gameId, [FromBody]CountEvent countEvent)
 		{
-			if (!games.ContainsKey(gameId))
+			using (var context = new GameCountContext())
 			{
-				games.Add(gameId, new Dictionary<string, int>());
-			}
-			if (!games[gameId].ContainsKey(countEvent.player))
-			{
-				games[gameId].Add(countEvent.player, 0);
-			}
-			games[gameId][countEvent.player] += countEvent.count;
+				var gameCountEvent = new GameCountEvent
+				{
+					Game = gameId,
+					Player = countEvent.player,
+					Count = countEvent.count
+				};
 
-			return Ok();
+				context.Events.Add(gameCountEvent);
+				await context.SaveChangesAsync();
+				return Ok();
+			}
 		}
+	}
+
+	public class Game
+	{
+		public string Id { get; set; }
+		public int Players { get; set; }
+	}
+
+	public class PlayerScore
+	{
+		public string Player { get; set; }
+		public int Score { get; set; }
 	}
 
 	public class CountEvent
@@ -104,6 +140,32 @@ namespace ManuelsUno
 		public int count { get; set; }
 	}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	public class GameCountEvent
+	{
+		public long Id { get; set; }
+		public string Game { get; set; }
+		public string Player { get; set; }
+		public int Count { get; set; }
+	}
+
+	public class GameCountContext : DbContext
+	{
+		public virtual DbSet<GameCountEvent> Events { get; set; }
+	}
 
 
 
