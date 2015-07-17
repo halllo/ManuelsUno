@@ -122,6 +122,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="game.html" />
     <Content Include="packages.config" />
     <None Include="Properties\PublishProfiles\manuelsuno - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\manuelsuno - Web Deploy.pubxml" />

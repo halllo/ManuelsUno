@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>no sea takimata</title>
+	<title>ManuelsUno</title>
 
 	<!-- Bootstrap -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
@@ -29,7 +29,7 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="#">no sea takimata</a>
+				<a class="navbar-brand">ManuelsUno</a>
 			</div>
 		</div>
 	</nav>
@@ -44,35 +44,45 @@
 		</div>
 	</div>
 
-	<div class="container">
-		<div id="loginPanel">
-			<p>username</p>
-			<input type="text" id="displayname" />
-			<p>groupname</p>
-			<input type="text" id="groupname" />
-			<p></p>
-			<input type="button" id="login" value="login" />
+	<div class="jumbotron" style="background: greenyellow">
+		<div class="container">
+			<h2>games</h2>
+			<ul id="games"></ul>
 		</div>
-		<div id="sendPanel" hidden>
-			<input type="text" id="message" />
-			<input type="button" id="sendmessage" value="send" />
-			<ul id="discussion"></ul>
+	</div>
+	
+	<div class="jumbotron">
+		<div class="container">
+			<h2>chat</h2>
+			<div id="loginPanel">
+				<p>username</p>
+				<input type="text" id="displayname" />
+				<p>groupname</p>
+				<input type="text" id="groupname" />
+				<p></p>
+				<input type="button" id="login" value="login" />
+			</div>
+			<div id="sendPanel" hidden>
+				<input type="text" id="message" />
+				<input type="button" id="sendmessage" value="send" />
+				<ul id="discussion"></ul>
+			</div>
 		</div>
-	</div> <!-- /container -->
+	</div>
 
 	<script src="Scripts/jquery-1.10.2.js"></script>
 	<script src="Scripts/jquery.signalR-2.1.2.js"></script>
 	<script src="signalr/hubs"></script>
 	<script type="text/javascript">
 		$(function () {
+
 			var chat = $.connection.myHub;
 			chat.client.addMessage = function (name, message) {
 				var encodedName = $('<div />').text(name).html();
 				var encodedMsg = $('<div />').text(message).html();
-				$('#discussion').append('<li><strong>' + encodedName
-					+ '</strong>:&nbsp;&nbsp;' + encodedMsg + '</li>');
+				$('#discussion').append('<li><strong>' + encodedName + '</strong>:&nbsp;&nbsp;' + encodedMsg + '</li>');
 			};
-
+			
 			$.connection.hub.start().done(function () {
 				$('#displayname').focus();
 				$("#login").click(function () {
@@ -94,6 +104,14 @@
 					});
 				});
 			});
+
+
+			$.getJSON("api/games", function (result) {
+				$.each(result, function (i, e) {
+					$('#games').append('<li><p><a href="game.html#' + e.Id + '">' + e.Id + '</a> (' + e.Players + ' players)</p></li>');
+				});
+			});
+
 		});
 	</script>
 </body>
