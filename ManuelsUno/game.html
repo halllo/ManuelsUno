@@ -34,24 +34,71 @@
 		</div>
 	</nav>
 
-	<div class="jumbotron">
-		<div class="container">
-			<h1 id="gameTitle"></h1>
-		</div>
+	<div class="container" style="margin-bottom: 50px">
+		<h1 id="gameTitle"></h1>
 	</div>
 
 	<div class="container">
-		
+		<div id="pieChart"></div>
 	</div> <!-- /container -->
 
 	<script src="Scripts/jquery-1.10.2.js"></script>
 	<script src="Scripts/jquery.signalR-2.1.2.js"></script>
-	<script src="signalr/hubs"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.4/d3.min.js"></script>
+	<script src="Scripts/d3pie.min.js"></script>
 	<script type="text/javascript">
 		$(function () {
 
-			$('#gameTitle').text(window.location.hash);
-			
+			var gameId = window.location.hash;
+
+			$('#gameTitle').text(gameId);
+
+			var pie = new d3pie("pieChart", {
+				"size": {
+					"canvasWidth": 590,
+					"pieInnerRadius": "95%",
+					"pieOuterRadius": "100%"
+				},
+				"data": {
+					"sortOrder": "value-desc",
+					"content": []
+				},
+				"labels": {
+					"outer": {
+						"format": "none",
+					},
+					"inner": {
+						"format": "label"
+					},
+					"mainLabel": {
+						"fontSize": 20
+					}
+				},
+				"effects": {
+					"pullOutSegmentOnClick": {
+						"effect": "none",
+						"speed": 400,
+						"size": 8
+					}
+				}
+			});
+
+			$.getJSON("api/games/" + gameId.replace("#", ""), function (result) {
+
+				pie.options.data.content = result.map(function (item) {
+					return {
+						label: item.Player,
+						value: item.Score,
+						color: "#dddddd"
+					}
+				});
+				pie.updateProp("data.sortOrder", "value-desc");
+
+				setTimeout(function () {
+					pie.updateProp("data.sortOrder", "random");
+				}, 6000);
+			});
+
 		});
 	</script>
 </body>
