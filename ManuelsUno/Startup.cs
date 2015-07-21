@@ -96,7 +96,7 @@ namespace ManuelsUno
 						Player = eg.Key,
 						Score = eg.Sum(e => e.Count)
 					})
-					.OrderByDescending(s => s.Score)
+					.OrderBy(s => s.Score)
 					.ToListAsync();
 
 				return events;

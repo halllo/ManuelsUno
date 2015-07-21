@@ -10,6 +10,7 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
 	<link rel="stylesheet" href="http://getbootstrap.com/examples/jumbotron/jumbotron.css">
+	<link rel="stylesheet" href="Scripts/jquery.bootstrap-touchspin.min.css">
 
 	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -33,27 +34,59 @@
 			</div>
 		</div>
 	</nav>
+	
+	
 
 	<div class="container" style="margin-bottom: 50px">
 		<h1 id="gameTitle"></h1>
 		<p>
-			<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+			<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#newScoreModal">
 				<span class="glyphicon glyphicon-bookmark"></span> enter score
 			</button>
 		</p>
-		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-			<div class="modal-dialog" role="document">
+		<div class="modal fade" id="newScoreModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog modal-lg" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="myModalLabel">Modal title</h4>
+						<h4 class="modal-title" id="myModalLabel">new score</h4>
 					</div>
 					<div class="modal-body">
-						...
+						<p>
+							<label for="scoreForPlayerName">player</label>
+							<input id="scoreForPlayerName">
+						</p>
+						<div class="row">
+							<div class="col-md-12">
+								<label for="scoreForPlayerScore0">score</label>
+								<input id="scoreForPlayerScore0" type="text" value="0">
+							</div>
+						</div>
+						<!--<div class="row">
+							<div class="col-md-6">
+								<label for="scoreForPlayerScore1">sdfdsf</label>
+								<input id="scoreForPlayerScore1" type="text" value="0">
+							</div>
+							<div class="col-md-6">
+								<label for="scoreForPlayerScore2">dsfsdere</label>
+								<input id="scoreForPlayerScore2" type="text" value="0">
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<label for="scoreForPlayerScore3">retretre</label>
+								<input id="scoreForPlayerScore3" type="text" value="0">
+							</div>
+							<div class="col-md-6">
+								<label for="scoreForPlayerScore4">hjkhjk</label>
+								<input id="scoreForPlayerScore4" type="text" value="0">
+							</div>
+						</div>-->
+
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-						<button type="button" class="btn btn-primary">Save changes</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+						<button type="button" class="btn btn-primary" id="submitNewScore">submit</button>
 					</div>
 				</div>
 			</div>
@@ -62,20 +95,28 @@
 
 	<div class="container">
 		<div id="pieChart"></div>
-	</div> <!-- /container -->
+	</div>
+	
+
 
 	<script src="Scripts/jquery-1.10.2.js"></script>
 	<script src="Scripts/jquery.signalR-2.1.2.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.10.2/jquery-ui.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.4/d3.min.js"></script>
 	<script src="Scripts/d3pie.min.js"></script>
+	<script src="Scripts/jquery.bootstrap-touchspin.min.js"></script>
 
 	<script type="text/javascript">
 		$(function () {
 
 			var gameId = window.location.hash;
 
+
+
 			$('#gameTitle').text(gameId);
+
+
 
 			var pie = new d3pie("pieChart", {
 				"size": {
@@ -84,7 +125,7 @@
 					"pieOuterRadius": "100%"
 				},
 				"data": {
-					"sortOrder": "value-desc",
+					"sortOrder": "none",
 					"content": []
 				},
 				"labels": {
@@ -107,6 +148,28 @@
 				}
 			});
 
+
+
+			$('#scoreForPlayerScore0').TouchSpin();
+			//$('#scoreForPlayerScore1').TouchSpin();
+			//$('#scoreForPlayerScore2').TouchSpin();
+			//$('#scoreForPlayerScore3').TouchSpin();
+			//$('#scoreForPlayerScore4').TouchSpin();
+
+
+
+			$('#submitNewScore').click(function () {
+				$.post("api/games/" + gameId.replace("#", ""),
+				{
+					player: $('#scoreForPlayerName').val(),
+					count: $('#scoreForPlayerScore0').val()
+				}, function () {
+					$('#newScoreModal').modal('toggle');
+				});
+			});
+
+
+
 			$.getJSON("api/games/" + gameId.replace("#", ""), function (result) {
 
 				pie.options.data.content = result.map(function (item) {
@@ -116,12 +179,19 @@
 						color: "#dddddd"
 					}
 				});
-				pie.updateProp("data.sortOrder", "value-desc");
+				pie.updateProp("data.sortOrder", "none");
 
 				setTimeout(function () {
 					pie.updateProp("data.sortOrder", "random");
 				}, 6000);
+
+				var playerNames = result.map(function (item) { return item.Player });
+				$('#scoreForPlayerName').autocomplete({
+					source: playerNames
+				});
 			});
+
+
 
 		});
 	</script>
