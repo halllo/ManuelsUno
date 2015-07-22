@@ -106,7 +106,7 @@
 			});
 
 
-			$.getJSON("api/games", function (result) {
+			$.getJSON("api/games" + "?d=" + new Date().getTime(), function (result) {
 				$.each(result, function (i, e) {
 					$('#games').append('<li><p><a href="game.html#' + e.Id + '">' + e.Id + '</a> (' + e.Players + ' players)</p></li>');
 				});

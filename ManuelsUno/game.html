@@ -205,7 +205,7 @@
 
 			var refreshTimeoutHandle = null;
 			var refreshFunction = function () {
-				$.getJSON("api/games/" + gameId, function (result) {
+				$.getJSON("api/games/" + gameId + "?d=" + new Date().getTime(), function (result) {
 
 					pie.options.data.content = result.map(function (item) {
 						return {
