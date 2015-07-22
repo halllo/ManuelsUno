@@ -117,8 +117,12 @@ namespace ManuelsUno
 
 				context.Events.Add(gameCountEvent);
 				await context.SaveChangesAsync();
-				return Ok();
 			}
+
+			var myHub = GlobalHost.ConnectionManager.GetHubContext<MyHub>();
+			myHub.Clients.Group(gameId).addMessage("server", "reload");
+
+			return Ok();
 		}
 	}
 

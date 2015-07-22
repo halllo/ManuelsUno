@@ -43,7 +43,6 @@
 			<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#newScoreModal">
 				<span class="glyphicon glyphicon-bookmark"></span> enter score
 			</button>
-			<button type="button" class="btn btn-primary btn-lg" id="reload">reload</button>
 		</p>
 		<div class="modal fade" id="newScoreModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 			<div class="modal-dialog" role="document">
@@ -101,7 +100,7 @@
 	</div>
 
 	
-	<ul id="srmessages" style="background: deeppink"></ul>
+	<ul id="srmessages" style="display: none; background: deeppink"></ul>
 
 
 
@@ -135,6 +134,10 @@
 
 			var chat = $.connection.myHub;
 			chat.client.addMessage = function (name, message) {
+				if (message == 'reload') {
+					refreshFunction();
+				}
+
 				var encodedName = $('<div />').text(name).html();
 				var encodedMsg = $('<div />').text(message).html();
 				$('#srmessages').append('<li><strong>' + encodedName + '</strong>:&nbsp;&nbsp;' + encodedMsg + '</li>');
@@ -200,9 +203,6 @@
 
 
 
-			$('#reload').click(function () {
-				refreshFunction();
-			});
 			var refreshTimeoutHandle = null;
 			var refreshFunction = function () {
 				$.getJSON("api/games/" + gameId, function (result) {
