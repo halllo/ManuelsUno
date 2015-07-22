@@ -34,8 +34,8 @@
 			</div>
 		</div>
 	</nav>
-	
-	
+
+
 
 	<div class="container" style="margin-bottom: 50px">
 		<h1 id="gameTitle"></h1>
@@ -43,9 +43,10 @@
 			<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#newScoreModal">
 				<span class="glyphicon glyphicon-bookmark"></span> enter score
 			</button>
+			<button type="button" class="btn btn-primary btn-lg" id="reload">reload</button>
 		</p>
 		<div class="modal fade" id="newScoreModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-			<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -53,8 +54,10 @@
 					</div>
 					<div class="modal-body">
 						<p>
-							<label for="scoreForPlayerName">player</label>
-							<input id="scoreForPlayerName">
+							<label for="scoreForPlayerNameExisting">existing player</label>
+							<select id="scoreForPlayerNameExisting"></select>
+							<label for="scoreForPlayerNameNew">or new player</label>
+							<input id="scoreForPlayerNameNew">
 						</p>
 						<div class="row">
 							<div class="col-md-12">
@@ -96,25 +99,50 @@
 	<div class="container">
 		<div id="pieChart"></div>
 	</div>
+
 	
+	<ul id="srmessages" style="background: deeppink"></ul>
+
 
 
 	<script src="Scripts/jquery-1.10.2.js"></script>
 	<script src="Scripts/jquery.signalR-2.1.2.js"></script>
+	<script src="signalr/hubs"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-	<script src="https://code.jquery.com/ui/1.10.2/jquery-ui.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.4/d3.min.js"></script>
 	<script src="Scripts/d3pie.min.js"></script>
 	<script src="Scripts/jquery.bootstrap-touchspin.min.js"></script>
+	<script type="text/javascript">
+		function guid() {
+			function s4() {
+				return Math.floor((1 + Math.random()) * 0x10000)
+					.toString(16)
+					.substring(1);
+			}
+			return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+				s4() + '-' + s4() + s4() + s4();
+		}
+	</script>
 
 	<script type="text/javascript">
 		$(function () {
 
-			var gameId = window.location.hash;
-
-
+			var gameId = window.location.hash.replace("#", "");
 
 			$('#gameTitle').text(gameId);
+
+
+
+			var chat = $.connection.myHub;
+			chat.client.addMessage = function (name, message) {
+				var encodedName = $('<div />').text(name).html();
+				var encodedMsg = $('<div />').text(message).html();
+				$('#srmessages').append('<li><strong>' + encodedName + '</strong>:&nbsp;&nbsp;' + encodedMsg + '</li>');
+			};
+
+			$.connection.hub.start().done(function () {
+				chat.server.joinRoom(guid(), gameId);
+			});
 
 
 
@@ -159,10 +187,12 @@
 
 
 			$('#submitNewScore').click(function () {
-				$.post("api/games/" + gameId.replace("#", ""),
+				var player = $('#scoreForPlayerNameExisting').val() || $('#scoreForPlayerNameNew').val();
+				var score = $('#scoreForPlayerScore0').val();
+				$.post("api/games/" + gameId,
 				{
-					player: $('#scoreForPlayerName').val(),
-					count: $('#scoreForPlayerScore0').val()
+					player: player,
+					count: score
 				}, function () {
 					$('#newScoreModal').modal('toggle');
 				});
@@ -170,27 +200,37 @@
 
 
 
-			$.getJSON("api/games/" + gameId.replace("#", ""), function (result) {
-
-				pie.options.data.content = result.map(function (item) {
-					return {
-						label: item.Player + " (" + item.Score + ")",
-						value: 1,
-						color: "#dddddd"
-					}
-				});
-				pie.updateProp("data.sortOrder", "none");
-
-				setTimeout(function () {
-					pie.updateProp("data.sortOrder", "random");
-				}, 6000);
-
-				var playerNames = result.map(function (item) { return item.Player });
-				$('#scoreForPlayerName').autocomplete({
-					source: playerNames
-				});
+			$('#reload').click(function () {
+				refreshFunction();
 			});
+			var refreshTimeoutHandle = null;
+			var refreshFunction = function () {
+				$.getJSON("api/games/" + gameId, function (result) {
 
+					pie.options.data.content = result.map(function (item) {
+						return {
+							label: item.Player + " (" + item.Score + ")",
+							value: 1,
+							color: "#dddddd"
+						}
+					});
+					pie.updateProp("data.sortOrder", "none");
+
+					if (refreshTimeoutHandle) {
+						clearTimeout(refreshTimeoutHandle);
+					}
+					refreshTimeoutHandle = setTimeout(function () {
+						pie.updateProp("data.sortOrder", "random");
+					}, 6000);
+
+					$('#scoreForPlayerNameExisting').empty().append($('<option>').text('').attr('value', null));
+					var playerNames = result.map(function (item) { return item.Player; });
+					$.each(playerNames, function (i, value) {
+						$('#scoreForPlayerNameExisting').append($('<option>').text(value).attr('value', value));
+					});
+				});
+			};
+			refreshFunction();
 
 
 		});
