@@ -235,7 +235,8 @@
 					+ $('#scoreForPlayerScoreAC').val() * 20
 					+ $('#scoreForPlayerScoreAB').val() * 50;
 			}
-			$('#newScoreModal').on('shown.bs.modal', function() {
+			$('#newScoreModal').on('shown.bs.modal', function () {
+				$('#scoreForPlayerNameNew').val('');
 				$('#scoreForPlayerScore1').val(0);
 				$('#scoreForPlayerScore2').val(0);
 				$('#scoreForPlayerScore3').val(0);
@@ -297,11 +298,13 @@
 						pie.updateProp("data.sortOrder", "random");
 					}, 6000);
 
-					$('#scoreForPlayerNameExisting').empty().append($('<option>').text('').attr('value', null));
-					var playerNames = result.map(function (item) { return item.Player; });
-					$.each(playerNames, function (i, value) {
-						$('#scoreForPlayerNameExisting').append($('<option>').text(value).attr('value', value));
-					});
+					if (result.length > $('#scoreForPlayerNameExisting option').size() - 1) {
+						$('#scoreForPlayerNameExisting').empty().append($('<option>').text('').attr('value', null));
+						var playerNames = result.map(function (item) { return item.Player; });
+						$.each(playerNames, function (i, value) {
+							$('#scoreForPlayerNameExisting').append($('<option>').text(value).attr('value', value));
+						});
+					}
 				});
 			};
 			refreshFunction();
