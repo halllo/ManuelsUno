@@ -59,46 +59,50 @@
 							<label for="scoreForPlayerNameNew">or new player</label>
 							<input id="scoreForPlayerNameNew">
 						</p>
-						<br/>
+						<br />
 						<div class="row">
 							<div class="col-md-12">
 								<h4>colored numbers</h4>
-								<img src="numbercolor.png" width="250px"/>
-								<p>
-									<label for="scoreForPlayerScore0">count of 0s</label>
-									<input id="scoreForPlayerScore0" type="text" value="0">
-									<label for="scoreForPlayerScore1">count of 1s</label>
-									<input id="scoreForPlayerScore1" type="text" value="0">
-									<label for="scoreForPlayerScore2">count of 2s</label>
-									<input id="scoreForPlayerScore2" type="text" value="0">
-									<label for="scoreForPlayerScore3">count of 3s</label>
-									<input id="scoreForPlayerScore3" type="text" value="0">
-									<label for="scoreForPlayerScore4">count of 4s</label>
-									<input id="scoreForPlayerScore4" type="text" value="0">
-									<label for="scoreForPlayerScore5">count of 5s</label>
-									<input id="scoreForPlayerScore5" type="text" value="0">
-									<label for="scoreForPlayerScore6">count of 6s</label>
-									<input id="scoreForPlayerScore6" type="text" value="0">
-									<label for="scoreForPlayerScore7">count of 7s</label>
-									<input id="scoreForPlayerScore7" type="text" value="0">
-									<label for="scoreForPlayerScore8">count of 8s</label>
-									<input id="scoreForPlayerScore8" type="text" value="0">
-									<label for="scoreForPlayerScore9">count of 9s</label>
-									<input id="scoreForPlayerScore9" type="text" value="0">
-								</p>
+								<img src="numbercolor.png" width="250px" />
 							</div>
 						</div>
-						<br/>
+						<div class="row">
+							<div class="col-md-4">
+								<label for="scoreForPlayerScore1">count of 1s</label>
+								<input id="scoreForPlayerScore1" type="text" value="0">
+								<label for="scoreForPlayerScore2">count of 2s</label>
+								<input id="scoreForPlayerScore2" type="text" value="0">
+								<label for="scoreForPlayerScore3">count of 3s</label>
+								<input id="scoreForPlayerScore3" type="text" value="0">
+							</div>
+							<div class="col-md-4">
+								<label for="scoreForPlayerScore4">count of 4s</label>
+								<input id="scoreForPlayerScore4" type="text" value="0">
+								<label for="scoreForPlayerScore5">count of 5s</label>
+								<input id="scoreForPlayerScore5" type="text" value="0">
+								<label for="scoreForPlayerScore6">count of 6s</label>
+								<input id="scoreForPlayerScore6" type="text" value="0">
+							</div>
+							<div class="col-md-4">
+								<label for="scoreForPlayerScore7">count of 7s</label>
+								<input id="scoreForPlayerScore7" type="text" value="0">
+								<label for="scoreForPlayerScore8">count of 8s</label>
+								<input id="scoreForPlayerScore8" type="text" value="0">
+								<label for="scoreForPlayerScore9">count of 9s</label>
+								<input id="scoreForPlayerScore9" type="text" value="0">
+							</div>
+						</div>
+						<br />
 						<div class="row">
 							<div class="col-md-6">
 								<h4>colored actions</h4>
-								<img src="actioncolor.png" width="250px"/>
+								<img src="actioncolor.png" width="250px" />
 								<label for="scoreForPlayerScoreAC">count</label>
 								<input id="scoreForPlayerScoreAC" type="text" value="0">
 							</div>
 							<div class="col-md-6">
 								<h4>black actions</h4>
-								<img src="actionblack.png" width="250px"/>
+								<img src="actionblack.png" width="250px" />
 								<label for="scoreForPlayerScoreAB">count</label>
 								<input id="scoreForPlayerScoreAB" type="text" value="0">
 							</div>
@@ -117,7 +121,7 @@
 		<div id="pieChart"></div>
 	</div>
 
-	
+
 	<ul id="srmessages" style="display: none; background: deeppink"></ul>
 
 
@@ -168,6 +172,14 @@
 
 
 			var pie = new d3pie("pieChart", {
+				"header": {
+					"title": {
+						"text": "",
+						"color": "#bbbbbb",
+						"fontSize": 15
+					},
+					"location": "pie-center"
+				},
 				"size": {
 					"canvasWidth": 590,
 					"pieInnerRadius": "95%",
@@ -199,24 +211,60 @@
 
 
 
-			$('#scoreForPlayerScore0').TouchSpin();
-			//$('#scoreForPlayerScore1').TouchSpin();
-			//$('#scoreForPlayerScore2').TouchSpin();
-			//$('#scoreForPlayerScore3').TouchSpin();
-			//$('#scoreForPlayerScore4').TouchSpin();
+			$('#scoreForPlayerScore1').TouchSpin();
+			$('#scoreForPlayerScore2').TouchSpin();
+			$('#scoreForPlayerScore3').TouchSpin();
+			$('#scoreForPlayerScore4').TouchSpin();
+			$('#scoreForPlayerScore5').TouchSpin();
+			$('#scoreForPlayerScore6').TouchSpin();
+			$('#scoreForPlayerScore7').TouchSpin();
+			$('#scoreForPlayerScore8').TouchSpin();
+			$('#scoreForPlayerScore9').TouchSpin();
+			$('#scoreForPlayerScoreAC').TouchSpin();
+			$('#scoreForPlayerScoreAB').TouchSpin();
+			var points = function () {
+				return 0
+					+ $('#scoreForPlayerScore1').val() * 1
+					+ $('#scoreForPlayerScore2').val() * 2
+					+ $('#scoreForPlayerScore3').val() * 3
+					+ $('#scoreForPlayerScore4').val() * 4
+					+ $('#scoreForPlayerScore5').val() * 5
+					+ $('#scoreForPlayerScore6').val() * 6
+					+ $('#scoreForPlayerScore7').val() * 7
+					+ $('#scoreForPlayerScore8').val() * 8
+					+ $('#scoreForPlayerScore9').val() * 9
+					+ $('#scoreForPlayerScoreAC').val() * 20
+					+ $('#scoreForPlayerScoreAB').val() * 50;
+			}
+			$('#newScoreModal').on('shown.bs.modal', function() {
+				$('#scoreForPlayerScore1').val(0);
+				$('#scoreForPlayerScore2').val(0);
+				$('#scoreForPlayerScore3').val(0);
+				$('#scoreForPlayerScore4').val(0);
+				$('#scoreForPlayerScore5').val(0);
+				$('#scoreForPlayerScore6').val(0);
+				$('#scoreForPlayerScore7').val(0);
+				$('#scoreForPlayerScore8').val(0);
+				$('#scoreForPlayerScore9').val(0);
+				$('#scoreForPlayerScoreAC').val(0);
+				$('#scoreForPlayerScoreAB').val(0);
+			});
 
 
 
 			$('#submitNewScore').click(function () {
 				var player = $('#scoreForPlayerNameExisting').val() || $('#scoreForPlayerNameNew').val();
-				var score = $('#scoreForPlayerScore0').val();
-				$.post("api/games/" + gameId,
-				{
-					player: player,
-					count: score
-				}, function () {
-					$('#newScoreModal').modal('toggle');
-				});
+				if (player) {
+					$.post("api/games/" + gameId,
+					{
+						player: player,
+						count: points()
+					}, function () {
+						$('#newScoreModal').modal('toggle');
+					});
+				} else {
+					alert("please choose a player");
+				}
 			});
 
 
@@ -224,20 +272,29 @@
 			var refreshTimeoutHandle = null;
 			var refreshFunction = function () {
 				$.getJSON("api/games/" + gameId + "?d=" + new Date().getTime(), function (result) {
-
-					pie.options.data.content = result.map(function (item) {
+					var playerScores = result.map(function (item) {
 						return {
 							label: item.Player + " (" + item.Score + ")",
 							value: 1,
 							color: "#dddddd"
 						}
 					});
+					if (playerScores[playerScores.length - 1]) {
+						playerScores[playerScores.length - 1].color = "#ffcccc";
+					}
+					if (playerScores[0]) {
+						playerScores[0].color = "#70ff70";
+					}
+
+					pie.options.data.content = playerScores;
+					pie.options.header.title.text = "ordered";
 					pie.updateProp("data.sortOrder", "none");
 
 					if (refreshTimeoutHandle) {
 						clearTimeout(refreshTimeoutHandle);
 					}
 					refreshTimeoutHandle = setTimeout(function () {
+						pie.options.header.title.text = "randomized sitting order";
 						pie.updateProp("data.sortOrder", "random");
 					}, 6000);
 
