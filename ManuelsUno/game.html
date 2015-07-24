@@ -40,16 +40,23 @@
 	<div class="container" style="margin-bottom: 50px">
 		<h1 id="gameTitle">loading...</h1>
 		<p>
+			<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#shareModal">
+				<span class="glyphicon glyphicon-qrcode"></span> share
+			</button>
+
 			<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#newScoreModal">
 				<span class="glyphicon glyphicon-bookmark"></span> enter score
 			</button>
 		</p>
-		<div class="modal fade" id="newScoreModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<p>
+			<label><input id="randomizeSittingOrderCheckbox" type="checkbox" value=""> randomize sitting order when new scores come in</label>
+		</p>
+		<div class="modal fade" id="newScoreModal" tabindex="-1" role="dialog" aria-labelledby="myNewScoreModalLabel">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="myModalLabel">new score</h4>
+						<h4 class="modal-title" id="myNewScoreModalLabel">new score</h4>
 					</div>
 					<div class="modal-body">
 						<p>
@@ -114,6 +121,22 @@
 				</div>
 			</div>
 		</div>
+		<div class="modal fade" id="shareModal" tabindex="-1" role="dialog" aria-labelledby="myShareModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myShareModalLabel">share</h4>
+					</div>
+					<div class="modal-body">
+						<div id="qrcode"></div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<div class="container">
@@ -129,7 +152,8 @@
 	<script src="Scripts/jquery.signalR-2.1.2.js"></script>
 	<script src="signalr/hubs"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.4/d3.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.4/d3.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
 	<script src="Scripts/d3pie.min.js"></script>
 	<script src="Scripts/jquery.bootstrap-touchspin.min.js"></script>
 	<script type="text/javascript">
@@ -150,6 +174,7 @@
 			var gameId = window.location.hash.replace("#", "");
 
 			$('#gameTitle').text(gameId);
+			$('#qrcode').qrcode({ width: 512, height: 512, text: "https://manuelsuno.azurewebsites.net/game.html#" + gameId });
 
 
 
@@ -294,8 +319,10 @@
 						clearTimeout(refreshTimeoutHandle);
 					}
 					refreshTimeoutHandle = setTimeout(function () {
-						pie.options.header.title.text = "randomized sitting order";
-						pie.updateProp("data.sortOrder", "random");
+						if ($('#randomizeSittingOrderCheckbox')[0].checked) {
+							pie.options.header.title.text = "randomized sitting order";
+							pie.updateProp("data.sortOrder", "random");
+						}
 					}, 6000);
 
 					if (result.length > $('#scoreForPlayerNameExisting option').size() - 1) {
